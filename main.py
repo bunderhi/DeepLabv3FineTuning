@@ -54,5 +54,5 @@ trained_model = train_model(model, criterion, dataloaders,
 
 
 # Save the trained model
-# torch.save({'model_state_dict':trained_model.state_dict()},os.path.join(bpath,'weights'))
+torch.save({'model_state_dict':trained_model.state_dict()},os.path.join(bpath,'state_dict.pt'))
 torch.save(model, os.path.join(bpath, 'weights.pt'))
