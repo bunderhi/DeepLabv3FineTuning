@@ -56,3 +56,6 @@ docs/_build/
 
 # PyBuilder
 target/
+models/FCN-ResNet18/fcn_resnet18.onnx
+models/FCN-ResNet18/classes.txt
+models/FCN-ResNet18/colors.txt
