@@ -18,8 +18,8 @@ model_urls = {
 
 def _segm_resnet(name, backbone_name, num_classes, aux, pretrained_backbone=True):
     backbone = resnet.__dict__[backbone_name](
-        pretrained=pretrained_backbone,
-        replace_stride_with_dilation=[False, True, True])
+        pretrained=pretrained_backbone)
+     #   replace_stride_with_dilation=[False, True, True])
 
     return_layers = {'layer4': 'out'}
     if aux:
@@ -104,3 +104,14 @@ def deeplabv3_resnet101(pretrained=False, progress=True,
         progress (bool): If True, displays a progress bar of the download to stderr
     """
     return _load_model('deeplabv3', 'resnet101', pretrained, progress, num_classes, aux_loss, **kwargs)
+
+def fcn_resnet18(pretrained=False, progress=True,
+                 num_classes=21, aux_loss=None, **kwargs):
+    """Constructs a Fully-Convolutional Network model with a ResNet-18 backbone.
+
+    Args:
+        pretrained (bool): If True, returns a model pre-trained on COCO train2017 which
+            contains the same classes as Pascal VOC
+        progress (bool): If True, displays a progress bar of the download to stderr
+    """
+    return _load_model('fcn', 'resnet18', pretrained, progress, num_classes, aux_loss, **kwargs)

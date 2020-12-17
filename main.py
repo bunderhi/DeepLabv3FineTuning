@@ -1,6 +1,6 @@
 import torch.optim as optim
 from sklearn.metrics import roc_auc_score, f1_score
-from model import createDeepLabv3
+from model import createFCN
 from trainer import train_model
 import datahandler
 import argparse
@@ -30,7 +30,9 @@ data_dir = args.data_directory
 epochs = args.epochs
 batchsize = args.batchsize
 # Create the deeplabv3 resnet101 model which is pretrained on a subset of COCO train2017, on the 20 categories that are present in the Pascal VOC dataset.
-model = createDeepLabv3()
+#model = createDeepLabv3()
+# Create the FCN resnet18 model 
+model = createFCN()
 model.train()
 # Create the experiment directory if not present
 if not os.path.isdir(bpath):
