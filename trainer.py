@@ -45,8 +45,9 @@ def train_model(model, criterion, dataloaders, optimizer, metrics, bpath, num_ep
                 # track history if only in train
                 with torch.set_grad_enabled(phase == 'Train'):
                     outputs = model(inputs)
-                    loss = criterion(outputs['out'], masks)
-                    y_pred = outputs['out'].data.cpu().numpy().ravel()
+                    # print(type(outputs),outputs.shape)
+                    loss = criterion(outputs, masks)
+                    y_pred = outputs.data.cpu().numpy().ravel()
                     y_true = masks.data.cpu().numpy().ravel()
                     for name, metric in metrics.items():
                         if name == 'f1_score':
@@ -76,6 +77,9 @@ def train_model(model, criterion, dataloaders, optimizer, metrics, bpath, num_ep
             if phase == 'Test' and loss < best_loss:
                 best_loss = loss
                 best_model_wts = copy.deepcopy(model.state_dict())
+        if i == 25:
+            optimizer.param_groups[0]['lr'] = 1e-5
+            print('Decrease decoder learning rate to 1e-5!')
 
     time_elapsed = time.time() - since
     print('Training complete in {:.0f}m {:.0f}s'.format(

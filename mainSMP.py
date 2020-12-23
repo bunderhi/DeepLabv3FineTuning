@@ -1,11 +1,11 @@
 import torch.optim as optim
 from sklearn.metrics import roc_auc_score, f1_score
-from model import createFCN
 from trainer import train_model
 import datahandler
 import argparse
 import os
 import torch
+import segmentation_models_pytorch as smp
 
 """
     Version requirements:
@@ -19,35 +19,46 @@ parser.add_argument(
     "data_directory", help='Specify the dataset directory path')
 parser.add_argument(
     "exp_directory", help='Specify the experiment directory where metrics and model weights shall be stored.')
-parser.add_argument("--epochs", default=25, type=int)
-parser.add_argument("--batchsize", default=4, type=int)
+parser.add_argument("--epochs", default=30, type=int)
+parser.add_argument("--batchsize", default=16, type=int)
 
 args = parser.parse_args()
 
 
 bpath = args.exp_directory
 data_dir = args.data_directory
-print(data_dir)
 epochs = args.epochs
 batchsize = args.batchsize
-# Create the deeplabv3 resnet101 model which is pretrained on a subset of COCO train2017, on the 20 categories that are present in the Pascal VOC dataset.
-#model = createDeepLabv3()
-# Create the FCN resnet18 model 
-model = createFCN()
+
+model = smp.Unet(
+    encoder_name="resnet18",        # choose encoder, e.g. mobilenet_v2 or efficientnet-b7
+    encoder_weights="imagenet",     # use `imagenet` pretrained weights for encoder initialization
+    classes=1,
+    activation="sigmoid",          # model output channels (number of classes in your dataset)
+)
 model.train()
+
+preprocessing_fn = smp.encoders.get_preprocessing_fn("resnet18","imagenet")
+
 # Create the experiment directory if not present
 if not os.path.isdir(bpath):
     os.mkdir(bpath)
 
 
 # Specify the loss function
-criterion = torch.nn.MSELoss(reduction='mean')
+#criterion = torch.nn.MSELoss(reduction='mean')
+# Dice/F1 score - https://en.wikipedia.org/wiki/S%C3%B8rensen%E2%80%93Dice_coefficient
+criterion = smp.utils.losses.DiceLoss()
+
 # Specify the optimizer with a lower learning rate
 optimizer = torch.optim.Adam(model.parameters(), lr=1e-4)
 
 # Specify the evalutation metrics
+# IoU/Jaccard score - https://en.wikipedia.org/wiki/Jaccard_index
 metrics = {'f1_score': f1_score, 'auroc': roc_auc_score}
-
+#metrics = [
+#    smp.utils.metrics.IoU(threshold=0.5),
+#]
 
 # Create the dataloader
 dataloaders = datahandler.get_dataloader_single_folder(
